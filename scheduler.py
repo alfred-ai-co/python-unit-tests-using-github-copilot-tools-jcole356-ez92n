@@ -1,7 +1,8 @@
 import heapq
 from datetime import datetime
 
-projects=[
+# List of projects with their details
+projects = [
     {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)},
     {"id": 2, "priority": 2, "name": "Project Beta", "deadline": datetime(2022, 11, 30, 23, 59)},
     {"id": 3, "priority": 3, "name": "Project Gamma", "deadline": datetime(2022, 12, 15, 23, 59)},
@@ -9,27 +10,43 @@ projects=[
     {"id": 5, "priority": 4, "name": "Project Epsilon", "deadline": datetime(2022, 12, 20, 23, 59)},
 ]
 
-assignees=[
+# List of assignees with their details
+assignees = [
     {"id": 1, "name": "Alice"},
     {"id": 2, "name": "Bob"},
     {"id": 3, "name": "Charlie"},
 ]
 
 def schedule_projects(projects, assignees):
+    # Sort projects by priority (descending) and deadline (ascending)
     projects.sort(key=lambda x: (x["priority"], x["deadline"]), reverse=True)
-    assignee_heap=[(0, assignee["name"], assignee) for assignee in assignees]
+
+    # Initialize a min-heap for assignees with their current workload (initially 0)
+    assignee_heap = [(0, assignee["name"], assignee) for assignee in assignees]
     heapq.heapify(assignee_heap)
-    assignments=[]
+
+    assignments = []
+
+    # Assign each project to the assignee with the least workload
     for project in projects:
-        workload, assignee_name, assignee=heapq.heappop(assignee_heap)
+        # Pop the assignee with the least workload from the heap
+        workload, assignee_name, assignee = heapq.heappop(assignee_heap)
+
+        # Assign the project to this assignee
         assignments.append({"project": project, "assignee": assignee})
-        workload+=1
+
+        # Increment the workload of the assignee
+        workload += 1
+
+        # Push the updated assignee back into the heap
         heapq.heappush(assignee_heap, (workload, assignee_name, assignee))
+
     return assignments
 
-if __name__=="__main__":
-    assignments=schedule_projects(projects, assignees)
+if __name__ == "__main__":
+    # Schedule the projects and print the assignments
+    assignments = schedule_projects(projects, assignees)
     for assignment in assignments:
-        project=assignment["project"]
-        assignee=assignment["assignee"]
+        project = assignment["project"]
+        assignee = assignment["assignee"]
         print(f"{project['name']} (Priority: {project['priority']}) Assigned To {assignee['name']} - Deadline: {project['deadline']}")
