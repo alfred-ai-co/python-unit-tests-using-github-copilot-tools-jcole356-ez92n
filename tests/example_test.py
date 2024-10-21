@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from scheduler import schedule_projects
+from scripts.scheduler import schedule_projects
 
 @pytest.fixture
 def projects():
