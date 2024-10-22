@@ -20,6 +20,74 @@ def assignees():
         {"id": 3, "name": "Charlie"},
     ]
 
+def test_empty_projects_and_assignees():
+  with pytest.raises(ValueError):
+    schedule_projects([], [])
+
+def test_single_project_no_assignees():
+  projects = [{"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)}]
+  with pytest.raises(ValueError):
+    schedule_projects(projects, [])
+
+def test_single_assignee_multiple_projects():
+  projects = [
+    {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)},
+    {"id": 2, "priority": 4, "name": "Project Beta", "deadline": datetime(2022, 12, 30, 23, 59)},
+  ]
+  assignees = [{"id": 1, "name": "Alice"}]
+  assignments = schedule_projects(projects, assignees)
+  assert len(assignments) == 2
+  assert assignments[0]["assignees"][0]["name"] == "Alice"
+  assert assignments[1]["assignees"][0]["name"] == "Alice"
+
+def test_projects_with_same_priority_different_deadlines(assignees):
+  projects = [
+    {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)},
+    {"id": 2, "priority": 5, "name": "Project Beta", "deadline": datetime(2022, 12, 30, 23, 59)},
+  ]
+  assignments = schedule_projects(projects, assignees)
+  assert len(assignments) == 2
+  assert assignments[0]["project"]["name"] == "Project Alpha"
+  assert assignments[1]["project"]["name"] == "Project Beta"
+
+def test_projects_with_different_priorities_same_deadline(assignees):
+  projects = [
+    {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)},
+    {"id": 2, "priority": 4, "name": "Project Beta", "deadline": datetime(2022, 12, 31, 23, 59)},
+  ]
+  assignments = schedule_projects(projects, assignees)
+  assert len(assignments) == 2
+  assert assignments[0]["project"]["priority"] == 5
+  assert assignments[1]["project"]["priority"] == 4
+
+def test_projects_with_same_priority_and_deadline(assignees):
+  projects = [
+    {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": datetime(2022, 12, 31, 23, 59)},
+    {"id": 2, "priority": 5, "name": "Project Beta", "deadline": datetime(2022, 12, 31, 23, 59)},
+  ]
+  assignments = schedule_projects(projects, assignees)
+  assert len(assignments) == 2
+  assert assignments[0]["project"]["name"] in ["Project Alpha", "Project Beta"]
+  assert assignments[1]["project"]["name"] in ["Project Alpha", "Project Beta"]
+
+def test_assignees_with_no_projects():
+  assignees = [
+    {"id": 1, "name": "Alice"},
+    {"id": 2, "name": "Bob"},
+  ]
+  assignments = schedule_projects([], assignees)
+  assert assignments == []
+
+def test_projects_with_no_deadline(assignees):
+  projects = [
+    {"id": 1, "priority": 5, "name": "Project Alpha", "deadline": None},
+    {"id": 2, "priority": 4, "name": "Project Beta", "deadline": None},
+  ]
+  assignments = schedule_projects(projects, assignees)
+  assert len(assignments) == 2
+  assert assignments[0]["project"]["name"] == "Project Alpha"
+  assert assignments[1]["project"]["name"] == "Project Beta"
+
 def test_no_projects(assignees):
     assignments = schedule_projects([], assignees)
     assert assignments == []
