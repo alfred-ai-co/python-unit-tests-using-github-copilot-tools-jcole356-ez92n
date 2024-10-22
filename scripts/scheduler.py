@@ -18,6 +18,9 @@ assignees = [
 ]
 
 def schedule_projects(projects, assignees):
+    if not assignees:
+        raise ValueError("No assignees to schedule")
+
     # Sort projects by priority (descending) and deadline (ascending)
     projects.sort(key=lambda x: (x["priority"], x["deadline"]), reverse=True)
 
