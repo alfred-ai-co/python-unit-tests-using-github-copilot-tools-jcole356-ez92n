@@ -1,5 +1,5 @@
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 from scheduler_feature import schedule_projects
 
 def test_no_projects():
@@ -70,3 +70,33 @@ def test_null_assignees():
     ]
     with pytest.raises(ValueError, match="Projects and assignees cannot be None"):
         schedule_projects(projects, None)
+
+def test_large_inputs():
+    # Generate a large number of projects
+    num_projects = 10000
+    projects = [
+        {
+            "id": i,
+            "priority": i % 10,
+            "name": f"Project {i}",
+            "deadline": datetime.now() + timedelta(days=i % 365)
+        }
+        for i in range(1, num_projects + 1)
+    ]
+
+    # Generate a large number of assignees
+    num_assignees = 1000
+    assignees = [
+        {"id": i, "name": f"Assignee {i}"}
+        for i in range(1, num_assignees + 1)
+    ]
+
+    # Run the schedule_projects function
+    assignments = schedule_projects(projects, assignees)
+
+    # Check that all projects are assigned
+    assert len(assignments) == num_projects
+
+    # Check that each project has at least one assignee
+    for assignment in assignments:
+        assert len(assignment["assignees"]) > 0
