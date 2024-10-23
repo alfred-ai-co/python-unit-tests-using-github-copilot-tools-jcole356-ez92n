@@ -16,13 +16,17 @@ assignees=[
 ]
 
 def schedule_projects(projects, assignees):
+    if projects == None or assignees == None:
+        raise ValueError("Projects and assignees cannot be None")
+
     projects.sort(key=lambda x: (x["priority"], x["deadline"]), reverse=True)
     assignee_heap = [(0, assignee["name"], assignee) for assignee in assignees]
     heapq.heapify(assignee_heap)
     assignments = []
     for project in projects:
         project_assignees = []
-        assignees_per_project=(len(assignees)+1)//4
+        # Need at least one assignee per project
+        assignees_per_project=max((len(assignees)+1)//4, 1)
         for _ in range(assignees_per_project):
             if assignee_heap:
                 workload, assignee_name, assignee=heapq.heappop(assignee_heap)
